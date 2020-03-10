@@ -19,7 +19,7 @@ library(data.table)
 
 # load a population
 population <- 
-  fread("data/base.csv") %>%
+  fread("data/STARTPOP.csv") %>%
   .[, sex := ifelse(female == 1, "female", "male")] %>%
   .[, c("female") := NULL] %>%
   .[, state := factor(x = state, levels = 1:3, labels = c("healthy", "mild", "severe"))]
@@ -35,13 +35,12 @@ w$add(a, name = "Agent")
 # convert the transition matrix model to a format that dymiumCore can understand
 # see https://core.dymium.org/articles/dymium-intro.html#transition
 trans_model <-
-  fread("data/tprob.csv") %>%
+  fread("data/file1.csv") %>%
   .[, `:=`(probs = .(c(healthy, mild, severe, death)),
            choices = .(c("healthy", "mild", "severe", "death"))), 
     by = 1:nrow(.)] %>%
   setnames(old = "from", new = "state") %>%
-  .[, sex := ifelse(female == 1, "female", "male")] %>%
-  .[, c("healthy", "mild", "severe", "death", "female") := NULL]
+  .[, c("healthy", "mild", "severe", "death") := NULL]
 ```
 
 ## Create microsimulation events

@@ -20,8 +20,6 @@ library(data.table)
 # load a population
 population <- 
   fread("data/STARTPOP.csv") %>%
-  .[, sex := ifelse(female == 1, "female", "male")] %>%
-  .[, c("female") := NULL] %>%
   .[, state := factor(x = state, levels = 1:3, labels = c("healthy", "mild", "severe"))]
 
 # create World
@@ -35,7 +33,7 @@ w$add(a, name = "Agent")
 # convert the transition matrix model to a format that dymiumCore can understand
 # see https://core.dymium.org/articles/dymium-intro.html#transition
 trans_model <-
-  fread("data/file1.csv") %>%
+  fread("data/tprob.csv") %>%
   .[, `:=`(probs = .(c(healthy, mild, severe, death)),
            choices = .(c("healthy", "mild", "severe", "death"))), 
     by = 1:nrow(.)] %>%
@@ -50,8 +48,8 @@ event_disability <- function(w, model) {
   
   Agt <- w$get("Agent")
   
-  # select only agents that are older than 50 years old
-  eligible_agent_ids <- Agt$get_data()[age > 50 & state != "death",
+  # select only agents that are older than 40 years old
+  eligible_agent_ids <- Agt$get_data()[age > 39 & state != "death",
                                        get(Agt$get_id_col())]
   
   TransitionDisability <- 
@@ -63,7 +61,7 @@ event_disability <- function(w, model) {
   
   # use the simulated result to update the 'state' attribute of the selected agents
   TransitionDisability$update_agents(attr = "state")
-
+  
   Agt$log(desc = "disability:state",
           value = xtabs(~ state, data = Agt$get_data()))
   
@@ -73,9 +71,9 @@ event_disability <- function(w, model) {
 event_age <- function(w) {
   Agt <- w$get("Agent")
   
-  # update age of alive agents, with max of 114.
+  # update age of alive agents, with max of 100.
   Agt$get_data(copy = FALSE) %>%
-    .[state != "death", age := ifelse(age + 1L > 114L, 114L, age + 1L)]
+    .[state != "death", age := ifelse(age + 1L > 94L, 94L, age + 1L)]
   
   return(w)
 }
@@ -115,6 +113,7 @@ ggplot(data = statelog, aes(x = time, y = N, color = state)) +
   geom_line() +
   scale_x_continuous(breaks = scales::pretty_breaks()) +
   labs(title = "Disability status")
+
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->

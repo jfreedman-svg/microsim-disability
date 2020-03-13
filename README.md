@@ -33,7 +33,7 @@ w$add(a, name = "Agent")
 # convert the transition matrix model to a format that dymiumCore can understand
 # see https://core.dymium.org/articles/dymium-intro.html#transition
 trans_model <-
-  fread("data/tprob.csv") %>%
+  fread("data/TRANS.csv") %>%
   .[, `:=`(probs = .(c(healthy, mild, severe, death)),
            choices = .(c("healthy", "mild", "severe", "death"))), 
     by = 1:nrow(.)] %>%
